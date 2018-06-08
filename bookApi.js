@@ -23,7 +23,8 @@ app.get('/api/getBookById', function(request,response){
 });
 
 app.get('/api/deleteBook', function(request, response){
-
+    library.getBookIndex(0.3620049808426351);
+    response.send(library.deleteBook(0.3620049808426351));
 })
 
 function Book(title, author, year, id){
@@ -79,7 +80,7 @@ Library.prototype.getBookIndex = function(id){
 };
 
 Library.prototype.deleteBook = function(id){
-    let bookIndex = this.getBookByIndex(id);
+    let bookIndex = this.getBookIndex(id);
     this.books.splice(bookIndex, 1);
     this.updateLibrary(this.books);
 };
