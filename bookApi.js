@@ -8,14 +8,14 @@ app.listen(3000, function(){
     console.log("Server is listening on 3000");
 });
 
-app.use(parser.json)
+app.use(parser.json());
 
 app.get('/', function(request, response){
     response.send(library.getBooks());
 });
 
 app.post('/api/addBook', function(request, response){
-    let params = request.query;
+    let params = request.body;
     let book = new Book(params.title, params.author, params.year, Math.random());
     library.addBook(book);
     response.send(library.getBooks());
