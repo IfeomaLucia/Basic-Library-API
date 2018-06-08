@@ -1,31 +1,34 @@
 var express = require('express');
 var app = express();
 var fs = require('fs');
+var parser = require('body-parser');
 
 var library = new Library("Global");
 app.listen(3000, function(){
     console.log("Server is listening on 3000");
 });
 
+app.use(parser.json)
+
 app.get('/', function(request, response){
     response.send(library.getBooks());
 });
 
-app.get('/api/addBook', function(request, response){
+app.post('/api/addBook', function(request, response){
     let params = request.query;
     let book = new Book(params.title, params.author, params.year, Math.random());
     library.addBook(book);
     response.send(library.getBooks());
 });
 
-app.get('/api/getBookById', function(request,response){
-    response.send(library.getBookById(0.16771061893269756));
-});
+// app.get('/api/getBookById', function(request,response){
+//     response.send(library.getBookById(0.16771061893269756));
+// });
 
-app.get('/api/deleteBook', function(request, response){
-    library.getBookIndex(0.3620049808426351);
-    response.send(library.deleteBook(0.3620049808426351));
-})
+// app.get('/api/deleteBook', function(request, response){
+//     library.getBookIndex(0.09642143501415568);
+//     response.send(library.deleteBook(0.09642143501415568));
+// })
 
 function Book(title, author, year, id){
     this.title = title;
