@@ -11,11 +11,11 @@ app.get('/', function(request, response){
     response.send(library.getBooks());
 });
 
-app.post('/api/book', function(request, response){
+app.get('/api/addBook', function(request, response){
     let params = request.query;
     let book = new Book(params.title, params.author, params.year, Math.random());
-    Library.addBook(book);
-    response.send(Library.getBooks());
+    library.addBook(book);
+    response.send(library.getBooks());
 });
 
 function Book(title, author, year, id){
