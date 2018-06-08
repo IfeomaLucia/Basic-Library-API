@@ -18,6 +18,14 @@ app.get('/api/addBook', function(request, response){
     response.send(library.getBooks());
 });
 
+app.get('/api/getBookById', function(request,response){
+    response.send(library.getBookById(0.16771061893269756));
+});
+
+app.get('/api/deleteBook', function(request, response){
+
+})
+
 function Book(title, author, year, id){
     this.title = title;
     this.author = author;
