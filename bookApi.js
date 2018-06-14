@@ -96,6 +96,7 @@ Library.prototype.getBookById = function(id){
             };
         }
     }
+    return `Book with ${id} does not exist in our library.`
 };
 
 //Another object which returns the index of the book in the library
@@ -107,6 +108,7 @@ Library.prototype.getBookIndex = function(id){
             return i;
         }
     }
+    return `Book with ${id} does not exist in our library.`
 };
 
 //Another object which deletes the required book from the libraray
