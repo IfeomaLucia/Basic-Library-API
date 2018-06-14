@@ -4,6 +4,7 @@ var fs = require('fs');
 var parser = require('body-parser');
 
 var library = new Library("Global");
+
 app.listen(3000, function(){
     console.log("Server is listening on 3000");
 });
@@ -21,14 +22,24 @@ app.post('/api/addBook', function(request, response){
     response.send(library.getBooks());
 });
 
-// app.get('/api/getBookById', function(request,response){
-//     response.send(library.getBookById(0.16771061893269756));
-// });
+app.get('/api/getBookById', function(request,response){
+    let id = request.query.id;
+    response.send(library.getBookById(id));
+});
 
-// app.get('/api/deleteBook', function(request, response){
-//     library.getBookIndex(0.09642143501415568);
-//     response.send(library.deleteBook(0.09642143501415568));
-// })
+
+//calling the update books
+app.put('/api/updateBook', function(request, response){
+    let id = request.query.id;
+    let body = request.body;
+    library.updateBook(id, new Book(body.name, body.author, body.year, id));
+    response.send(library.getBooks());
+});
+
+app.delete('/api/deleteBook', function(request, response){
+    let id = request.query.id;
+    response.send(library.deleteBook(id));
+});
 
 function Book(title, author, year, id){
     this.title = title;
@@ -47,18 +58,19 @@ Library.prototype.getLibrary = function(){
     return JSON.parse(fs.readFileSync('./data.json', 'utf-8'));
 };
 
-Library.prototype.updateLibrary = function(books){
+Library.prototype.updateLibrary = function(){
     return fs.writeFileSync('./data.json', JSON.stringify(this.books));
 };
 
 Library.prototype.addBook = function(book){
+    this.books = this.getBooks();
     this.books.push(book);
-    this.updateLibrary(this.books);
+    this.updateLibrary();
 };
 
 Library.prototype.getBooks = function(){
     this.books = this.getLibrary();
-    return this.books
+    return this.books;
 };
 
 Library.prototype.getBookById = function(id){
@@ -91,6 +103,7 @@ Library.prototype.deleteBook = function(id){
 Library.prototype.updateBook = function(id, updatedBook){
     let bookIndex = this.getBookIndex(id);
     this.books[bookIndex] = updatedBook;
+    console.log(this.books);
     this.updateLibrary(this.books);
     //OR
     // let currentBook = this.getBookById(id);
