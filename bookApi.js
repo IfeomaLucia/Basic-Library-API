@@ -32,7 +32,7 @@ app.get('/api/getBookById', function(request,response){
 app.put('/api/updateBook', function(request, response){
     let id = request.query.id;
     let body = request.body;
-    library.updateBook(id, new Book(body.name, body.author, body.year, id));
+    library.updateBook(id, new Book(body.title, body.author, body.year, id));
     response.send(library.getBooks());
 });
 
@@ -76,7 +76,7 @@ Library.prototype.getBooks = function(){
 Library.prototype.getBookById = function(id){
     this.books = this.getLibrary();
     for(var i = 0; i < this.books.length; i++){
-        if(this.books[i].id === id){
+        if(this.books[i].id == id){
             return {
                 book: this.books[i],
                 index: i
@@ -88,7 +88,7 @@ Library.prototype.getBookById = function(id){
 Library.prototype.getBookIndex = function(id){
     this.books = this.getLibrary();
     for(var i = 0; i < this.books.length; i++){
-        if(this.books[i].id === id){
+        if(this.books[i].id == id){
             return i;
         }
     }
@@ -98,6 +98,7 @@ Library.prototype.deleteBook = function(id){
     let bookIndex = this.getBookIndex(id);
     this.books.splice(bookIndex, 1);
     this.updateLibrary(this.books);
+    return this.books;
 };
 
 Library.prototype.updateBook = function(id, updatedBook){
