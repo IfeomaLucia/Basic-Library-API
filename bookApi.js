@@ -47,6 +47,10 @@ app.delete('/api/deleteBook', function(request, response){
     response.send(library.deleteBook(id));
 });
 
+app.get('/api/getBookByParam', function(request, response){
+    let param = request.query.value;
+    response.send(library.getBooksByParam(param));
+})
 //Creating the Book function
 function Book(title, author, year, id){
     this.title = title;
@@ -134,10 +138,12 @@ Library.prototype.updateBook = function(id, updatedBook){
 };
 
 //This object gets the book searched for with any of the parameters, either title, year etc
-Library.prototype.getBooksByParam = function(param, value){
-    let books = this.getLibrary;
+Library.prototype.getBooksByParam = function(value){
+    this.books = this.getLibrary;
+    var books = [];
     for(let i = 0; i < this.books.length; i++){
-        if(this.books[i][param] == value){
+        if(this.books[i].title == value || this.books[i].author == value
+           || this.books[i].year == value ||this.books[i].id == value){
             books.push(this.books[i]);
         }
     }
