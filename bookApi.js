@@ -51,6 +51,11 @@ app.get('/api/getBookByParam', function(request, response){
     let param = request.query.value;
     response.send(library.getBooksByParam(param));
 })
+
+app.get('/api/borrowBook', function(request,response){
+    let id = request.query.id;
+    response.send(library.borrowBooks(id));
+});
 //Creating the Book function
 function Book(title, author, year, id){
     this.title = title;
@@ -62,6 +67,7 @@ function Book(title, author, year, id){
 function Library(name){
     this.name = name;
     this.books = [];
+    this.borrowedBooks = [];
 }
 
 //Creating a library object which enables it to read from our json file
@@ -73,6 +79,14 @@ Library.prototype.getLibrary = function(){
 //Creating another object which enables us to add items to the json file
 Library.prototype.updateLibrary = function(){
     return fs.writeFileSync('./data.json', JSON.stringify(this.books));
+};
+
+Library.prototype.getBorrowed = function(){
+    return JSON.parse(fs.readFileSync('./borrow.json', 'utf-8'));
+};
+
+Library.prototype.updateBorrowed = function(borrowedBooks){
+    return fs.writeFileSync('./borrow.json', JSON.stringify(borrowedBooks));
 };
 
 //Creating the object which adds new books to our library
@@ -92,7 +106,7 @@ Library.prototype.getBooks = function(){
 //existing book by its Id
 Library.prototype.getBookById = function(id){
     this.books = this.getLibrary();
-    for(var i = 0; i < this.books.length; i++){
+    for(let i = 0; i < this.books.length; i++){
         if(this.books[i].id == id){
             return {
                 book: this.books[i],
@@ -100,28 +114,29 @@ Library.prototype.getBookById = function(id){
             };
         }
     }
-    return `Book with ${id} does not exist in our library.`
+    return `Book with id, ${id}, does not exist in our library.`
 };
 
 //Another object which returns the index of the book in the library
 //The search is acheived using the book's Id
 Library.prototype.getBookIndex = function(id){
     this.books = this.getLibrary();
-    for(var i = 0; i < this.books.length; i++){
+    for(let i = 0; i < this.books.length; i++){
         if(this.books[i].id == id){
             return i;
         }
     }
-    return `Book with ${id} does not exist in our library.`
+    return `Book with id, ${id}, does not exist in our library.`
 };
 
 //Another object which deletes the required book from the libraray
 //It does this by finding the book with the particular Id 
 Library.prototype.deleteBook = function(id){
     let bookIndex = this.getBookIndex(id);
+    var output = 'You have deleted the book by ' + this.books[bookIndex].author;
     this.books.splice(bookIndex, 1);
     this.updateLibrary(this.books);
-    return this.books;
+    return output;
 };
 
 //This object provides the function for updating books in the library
@@ -139,7 +154,7 @@ Library.prototype.updateBook = function(id, updatedBook){
 
 //This object gets the book searched for with any of the parameters, either title, year etc
 Library.prototype.getBooksByParam = function(value){
-    this.books = this.getLibrary;
+    this.books = this.getLibrary();
     var books = [];
     for(let i = 0; i < this.books.length; i++){
         if(this.books[i].title == value || this.books[i].author == value
@@ -149,3 +164,19 @@ Library.prototype.getBooksByParam = function(value){
     }
     return books;
 };
+
+Library.prototype.borrowBooks = function(id){
+    this.borrowedBooks = this.getBorrowed();
+    let bookIndex = this.getBookIndex(id);
+    this.books.splice(bookIndex, 1);
+    this.borrowedBooks.push(this.books[bookIndex]);
+    this.books.splice(bookIndex, 1);
+    this.updateBorrowed(this.borrowedBooks);
+    return this.borrowedBooks;
+}
+
+Library.prototype.returnBooks = function(id){
+    thsi.borrowedBooks =
+    this.deleteBook(id);
+
+}
