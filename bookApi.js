@@ -18,7 +18,7 @@ app.get('/', function(request, response){
     response.send(library.getBooks());
 });
 
-//Enables the addition of books to the library
+//the request for the addition of books to the library
 app.post('/api/addBook', function(request, response){
     let params = request.body;
     let book = new Book(params.title, params.author, params.year, Math.random());
@@ -26,14 +26,13 @@ app.post('/api/addBook', function(request, response){
     response.send(library.getBooks());
 });
 
-//Finding a book by its Id
+//the request for finding a book by its id
 app.get('/api/getBookById', function(request,response){
     let id = request.query.id;
     response.send(library.getBookById(id));
 });
 
-
-//Updating any book in the library by calling its Id
+//The request for updating any book in the library by calling its id
 app.put('/api/updateBook', function(request, response){
     let id = request.query.id;
     let body = request.body;
@@ -41,22 +40,25 @@ app.put('/api/updateBook', function(request, response){
     response.send(library.getBooks());
 });
 
-//Deletes a book from the library by finding its Id
+//Deletes a book from the library by finding its id
 app.delete('/api/deleteBook', function(request, response){
     let id = request.query.id;
     response.send(library.deleteBook(id));
 });
 
+//The request for gtting the book by param
 app.get('/api/getBookByParam', function(request, response){
     let param = request.query.value;
     response.send(library.getBooksByParam(param));
 })
 
+//The request for borrowing books
 app.get('/api/borrowBook', function(request,response){
     let id = request.query.id;
     response.send(library.borrowBooks(id));
 });
 
+//The request for returning borrowed books
 app.get('/api/returnBook', function(request,response){
     let id = request.query.id;
     response.send(library.returnBook(id));
@@ -100,9 +102,10 @@ Library.prototype.getBooks = function(){
 };
 
 //Creating an object which loops through our library and finds an
-//existing book by its Id
+//existing book by its id
 Library.prototype.getBookById = function(id){
     this.books = this.getLibrary();
+    //Looping through the library to find the book with the required id
     for(let i = 0; i < this.books.length; i++){
         if(this.books[i].id == id){
             return this.books[i];
@@ -160,26 +163,27 @@ Library.prototype.getBooksByParam = function(value){
     return books;
 };
 
+//This object allows the borrowing of books by indicating its id
 Library.prototype.borrowBooks = function(id){
     var book =  this.getBookById(id);
-    this.borrowedBooks.push(book);
-    fs.writeFileSync('./borrowedBooks.json', JSON.stringify(this.borrowedBooks));
-    //var output = `You just borrowed ${book.title} by ${book.author}.`
-    this.deleteBook(id);
+    this.borrowedBooks.push(book);//pushing the required book into the borrowed books array
+    fs.writeFileSync('./borrowedBooks.json', JSON.stringify(this.borrowedBooks));//updating the borrowed array
+    this.deleteBook(id);//deletes the borrowed book from the library array(data.json)
     return `You just borrowed ${book.title} by ${book.author}.`;
 }
 
+//This object allows the return of borrowed books
 Library.prototype.returnBook = function(id){
-    this.borrowedBooks = JSON.parse(fs.readFileSync('./borrowedBooks.json', 'utf-8'));
+    this.borrowedBooks = JSON.parse(fs.readFileSync('./borrowedBooks.json', 'utf-8'));//getting the borrowed array
+    //Looping through the borrowed books array to find the book with the required id
     for (let i = 0; i < this.borrowedBooks.length; i++){
         if(this.borrowedBooks[i].id == id){
             var book = this.borrowedBooks[i];
             var bookIndex = i;
         }
     }
-    this.addBook(book);
-    this.borrowedBooks.splice(bookIndex, 1);
-    fs.writeFileSync('./borrowedBooks.json', JSON.stringify(this.borrowedBooks));
-    //var message = `You just returned ${book.title} by ${book.author} (${book.year}).`;
+    this.addBook(book);//adding the borrowed book back to the library array
+    this.borrowedBooks.splice(bookIndex, 1);//removing it from the borrowed books array
+    fs.writeFileSync('./borrowedBooks.json', JSON.stringify(this.borrowedBooks));//updating the borrowed array
     return `You just returned ${book.title} by ${book.author}`;
 }
