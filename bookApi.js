@@ -56,6 +56,11 @@ app.get('/api/borrowBook', function(request,response){
     let id = request.query.id;
     response.send(library.borrowBooks(id));
 });
+
+app.get('/api/returnBook', function(request,response){
+    let id = request.query.id;
+    response.send(library.returnBook(id));
+});
 //Creating the Book function
 function Book(title, author, year, id){
     this.title = title;
@@ -81,14 +86,6 @@ Library.prototype.updateLibrary = function(){
     return fs.writeFileSync('./data.json', JSON.stringify(this.books));
 };
 
-Library.prototype.getBorrowed = function(){
-    return JSON.parse(fs.readFileSync('./borrow.json', 'utf-8'));
-};
-
-Library.prototype.updateBorrowed = function(borrowedBooks){
-    return fs.writeFileSync('./borrow.json', JSON.stringify(borrowedBooks));
-};
-
 //Creating the object which adds new books to our library
 Library.prototype.addBook = function(book){
     this.books = this.getBooks();
@@ -108,13 +105,10 @@ Library.prototype.getBookById = function(id){
     this.books = this.getLibrary();
     for(let i = 0; i < this.books.length; i++){
         if(this.books[i].id == id){
-            return {
-                book: this.books[i],
-                index: i
-            };
+            return this.books[i];
         }
     }
-    return `Book with id, ${id}, does not exist in our library.`
+    return `Book with id, ${id}, does not exist in our library.`;
 };
 
 //Another object which returns the index of the book in the library
@@ -126,14 +120,15 @@ Library.prototype.getBookIndex = function(id){
             return i;
         }
     }
-    return `Book with id, ${id}, does not exist in our library.`
+    return `Book with id, ${id}, does not exist in our library.`;
 };
 
 //Another object which deletes the required book from the libraray
 //It does this by finding the book with the particular Id 
 Library.prototype.deleteBook = function(id){
     let bookIndex = this.getBookIndex(id);
-    var output = 'You have deleted the book by ' + this.books[bookIndex].author;
+    var output = "You have deleted the book: '"+ this.books[bookIndex].title +   
+                 "' written by " + this.books[bookIndex].author + ".";
     this.books.splice(bookIndex, 1);
     this.updateLibrary(this.books);
     return output;
@@ -158,7 +153,7 @@ Library.prototype.getBooksByParam = function(value){
     var books = [];
     for(let i = 0; i < this.books.length; i++){
         if(this.books[i].title == value || this.books[i].author == value
-           || this.books[i].year == value ||this.books[i].id == value){
+           || this.books[i].year == value || this.books[i].id == value){
             books.push(this.books[i]);
         }
     }
@@ -166,17 +161,25 @@ Library.prototype.getBooksByParam = function(value){
 };
 
 Library.prototype.borrowBooks = function(id){
-    this.borrowedBooks = this.getBorrowed();
-    let bookIndex = this.getBookIndex(id);
-    this.books.splice(bookIndex, 1);
-    this.borrowedBooks.push(this.books[bookIndex]);
-    this.books.splice(bookIndex, 1);
-    this.updateBorrowed(this.borrowedBooks);
-    return this.borrowedBooks;
+    var book =  this.getBookById(id);
+    this.borrowedBooks.push(book);
+    fs.writeFileSync('./borrowedBooks.json', JSON.stringify(this.borrowedBooks));
+    //var output = `You just borrowed ${book.title} by ${book.author}.`
+    this.deleteBook(id);
+    return `You just borrowed ${book.title} by ${book.author}.`;
 }
 
-Library.prototype.returnBooks = function(id){
-    thsi.borrowedBooks =
-    this.deleteBook(id);
-
+Library.prototype.returnBook = function(id){
+    this.borrowedBooks = JSON.parse(fs.readFileSync('./borrowedBooks.json', 'utf-8'));
+    for (let i = 0; i < this.borrowedBooks.length; i++){
+        if(this.borrowedBooks[i].id == id){
+            var book = this.borrowedBooks[i];
+            var bookIndex = i;
+        }
+    }
+    this.addBook(book);
+    this.borrowedBooks.splice(bookIndex, 1);
+    fs.writeFileSync('./borrowedBooks.json', JSON.stringify(this.borrowedBooks));
+    //var message = `You just returned ${book.title} by ${book.author} (${book.year}).`;
+    return `You just returned ${book.title} by ${book.author}`;
 }
